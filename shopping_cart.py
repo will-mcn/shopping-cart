@@ -47,13 +47,7 @@ while True:
        selected_ids.append(product_id)
 
 # Information Display / Output
-for product_id in selected_ids:
-    matching_products = [p for p in products if str(p["id"]) == str(product_id)]
-    matching_product = matching_products[0]
-    cust_total = cust_total + matching_product["price"]
-    print("SELECTED PRODUCT: " + matching_product["name"] + " " + to_usd(matching_product["price"]))
 
-print("TOTAL PRICE:", to_usd(cust_total))
 
 # PRINTING RECEIPT
 
@@ -61,6 +55,8 @@ print("TOTAL PRICE:", to_usd(cust_total))
 #A grocery store phone number and/or website URL and/or address of choice
 print('------------------------------------------')
 print("DENT PLACE MARKET")
+print("(202)-506-3029", "|", "1643 34TH ST. NW WASHINGTON, DC 20007" )
+print("https://www.dentplacemarket.com/")
 
 print('------------------------------------------')
 
@@ -71,9 +67,38 @@ today = now.strftime("%Y-%m-%d %H:%M %p")
 
 print("CHECKOUT AT:", today)
 
+print('------------------------------------------')
+
+for product_id in selected_ids:
+    matching_products = [p for p in products if str(p["id"]) == str(product_id)]
+    matching_product = matching_products[0]
+    cust_total = cust_total + matching_product["price"]
+    print("SELECTED PRODUCT: " + matching_product["name"] + " " + to_usd(matching_product["price"]))
+
+print("TOTAL PRICE:", to_usd(cust_total))
+
 ##The name and price of each shopping cart item, price being formatted as US dollars and cents (e.g. $3.50, etc.)
+
 #The total cost of all shopping cart items (i.e. the "subtotal"), formatted as US dollars and cents (e.g. $19.47), calculated as the sum of their prices
+print('------------------------------------------')
+print("SUBTOTAL:", to_usd(cust_total))
+
 #The amount of tax owed (e.g. $1.70), calculated by multiplying the total cost by a New York City sales tax rate of 8.75% (for the purposes of this project, groceries are not exempt from sales tax)
+import os 
+tax_rate = float(os.getenv("TAX_RATE", default = 0.0875))
+total_tax = tax_rate * cust_total
+print("TAX:", to_usd(total_tax))
+
 #The total amount owed, formatted as US dollars and cents (e.g. $21.17), calculated by adding together the amount of tax owed plus the total cost of all shopping cart items
+print("CUSTOMER TOTAL:", to_usd(total_tax + cust_total))
+print('------------------------------------------')
+
+# Sending Receipts via Email
+
+
+
 #A friendly message thanking the customer and/or encouraging the customer to shop again
+print("THANK YOU FOR SHOPPING WITH US. PLEASE COME AGAIN SOON!")
+
+
 
