@@ -1,4 +1,7 @@
-# shopping_cart.py
+# This is the shopping_cart.py file
+
+# Setup
+
 products = [
     {"id":1, "name": "Chocolate Sandwich Cookies", "department": "snacks", "aisle": "cookies cakes", "price": 3.50},
     {"id":2, "name": "All-Seasons Salt", "department": "pantry", "aisle": "spices seasonings", "price": 4.99},
@@ -34,7 +37,18 @@ def to_usd(my_price):
     """
     return f"${my_price:,.2f}" #> $12,000.71
 
-# User Information Capture
+
+
+# Import packages
+import os
+from datetime import datetime 
+from dotenv import load_dotenv
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+load_dotenv()
+
+#USER INFORMATION CAPTURE
 cust_total = 0
 selected_ids = []
 
@@ -42,39 +56,32 @@ while True:
     product_id = input("Please input a product identifier, or 'DONE' if there are no remaining items: ")
     if product_id == "DONE":
         break
-    
     else:
        selected_ids.append(product_id)
 
-# Information Display / Output
-
-
 # PRINTING RECEIPT
-
-#A grocery store name of your choice 
-#A grocery store phone number and/or website URL and/or address of choice
 print('------------------------------------------')
-print("DENT PLACE MARKET")
-print("(202)-506-3029", "|", "1643 34TH ST. NW WASHINGTON, DC 20007" )
-print("https://www.dentplacemarket.com/")
+print("MCNAMARA & SONS MARKET")
+print("(202)-687-0100", "|", "3700 O ST. NW WASHINGTON, DC 20057" )
+print("QUESTIONS? REACH US AT: HELP@M&SMARKET.COM")
 
 print('------------------------------------------')
 
 #The date and time of the beginning of the checkout process, formatted in a human-friendly way (e.g. 2020-02-07 03:54 PM)
-import datetime
-now = datetime.datetime.now()
+now =datetime.now()
 today = now.strftime("%Y-%m-%d %H:%M %p")
 
 print("CHECKOUT AT:", today)
 
 print('------------------------------------------')
 
+html_receipt = ""
 for product_id in selected_ids:
     matching_products = [p for p in products if str(p["id"]) == str(product_id)]
     matching_product = matching_products[0]
     cust_total = cust_total + matching_product["price"]
-    print("SELECTED PRODUCT: " + matching_product["name"] + " " + to_usd(matching_product["price"]))
-
+    print("SELECTED PRODUCT:" + matching_product['name'] + "" + to_usd(matching_product['price']))
+    html_receipt += f"<li>{matching_product['name']} ({to_usd(matching_product['price'])}) </li>" 
 print("TOTAL PRICE:", to_usd(cust_total))
 
 ##The name and price of each shopping cart item, price being formatted as US dollars and cents (e.g. $3.50, etc.)
@@ -84,21 +91,67 @@ print('------------------------------------------')
 print("SUBTOTAL:", to_usd(cust_total))
 
 #The amount of tax owed (e.g. $1.70), calculated by multiplying the total cost by a New York City sales tax rate of 8.75% (for the purposes of this project, groceries are not exempt from sales tax)
-import os 
 tax_rate = float(os.getenv("TAX_RATE", default = 0.0875))
 total_tax = tax_rate * cust_total
-print("TAX:", to_usd(total_tax))
+print(f"TAX: ({to_usd(total_tax)})")
 
 #The total amount owed, formatted as US dollars and cents (e.g. $21.17), calculated by adding together the amount of tax owed plus the total cost of all shopping cart items
 print("CUSTOMER TOTAL:", to_usd(total_tax + cust_total))
 print('------------------------------------------')
 
 # Sending Receipts via Email
+cust_e_choice = input("Would you like an email copy of your receipt? (Y/N):")
+if cust_e_choice == "Y":
+    cust_email = input("Please enter a valid email address:")
 
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="Please set env var called 'SENDGRID_API_KEY'")
+    SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="Please set env var called 'SENDER_ADDRESS'")
 
+    client = SendGridAPIClient(SENDGRID_API_KEY)
+    print("CLIENT:", type(client))
+
+    subject = "Your receipt from McNamara & Sons Market"
+
+    html_content = f"""
+    <h1> MCNAMARA & SONS MARKET, INC. </h1>
+
+    <h3> Customer receipt: </h3> 
+
+    <p>Date: {today} </p>
+
+    <ol>
+        {html_receipt}
+    </ol>
+
+    <p>SUBTOTAL: {to_usd(cust_total)} </p>
+    <p>TAX DUE: +{to_usd(total_tax)} </p>
+    <p>TOTAL: {to_usd(total_tax + cust_total)} </p>
+
+    <h3>Thank you for shopping with us today! </h3>
+    """
+
+    print("HTML:", html_content)
+    message = Mail(from_email=SENDER_ADDRESS, to_emails=cust_email, subject=subject, html_content=html_content)
+
+    try:
+        response = client.send(message)
+
+        print("RESPONSE:", type(response)) 
+        print(response.status_code) #> 202 indicates SUCCESS
+        print(response.body)
+        print(response.headers)
+
+    except Exception as err:
+        print(type(err))
+        print(err)
+
+    print("RECEIPT SENT. HAVE A NICE DAY!")
+
+else:
+    print("THANK YOU FOR SHOPPING WITH US. PLEASE COME AGAIN SOON!")
 
 #A friendly message thanking the customer and/or encouraging the customer to shop again
-print("THANK YOU FOR SHOPPING WITH US. PLEASE COME AGAIN SOON!")
 
 
 
+# 
