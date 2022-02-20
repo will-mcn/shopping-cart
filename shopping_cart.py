@@ -2,28 +2,24 @@
 
 # Setup
 
-products = [
-    {"id":1, "name": "Chocolate Sandwich Cookies", "department": "snacks", "aisle": "cookies cakes", "price": 3.50},
-    {"id":2, "name": "All-Seasons Salt", "department": "pantry", "aisle": "spices seasonings", "price": 4.99},
-    {"id":3, "name": "Robust Golden Unsweetened Oolong Tea", "department": "beverages", "aisle": "tea", "price": 2.49},
-    {"id":4, "name": "Smart Ones Classic Favorites Mini Rigatoni With Vodka Cream Sauce", "department": "frozen", "aisle": "frozen meals", "price": 6.99},
-    {"id":5, "name": "Green Chile Anytime Sauce", "department": "pantry", "aisle": "marinades meat preparation", "price": 7.99},
-    {"id":6, "name": "Dry Nose Oil", "department": "personal care", "aisle": "cold flu allergy", "price": 21.99},
-    {"id":7, "name": "Pure Coconut Water With Orange", "department": "beverages", "aisle": "juice nectars", "price": 3.50},
-    {"id":8, "name": "Cut Russet Potatoes Steam N' Mash", "department": "frozen", "aisle": "frozen produce", "price": 4.25},
-    {"id":9, "name": "Light Strawberry Blueberry Yogurt", "department": "dairy eggs", "aisle": "yogurt", "price": 6.50},
-    {"id":10, "name": "Sparkling Orange Juice & Prickly Pear Beverage", "department": "beverages", "aisle": "water seltzer sparkling water", "price": 2.99},
-    {"id":11, "name": "Peach Mango Juice", "department": "beverages", "aisle": "refrigerated", "price": 1.99},
-    {"id":12, "name": "Chocolate Fudge Layer Cake", "department": "frozen", "aisle": "frozen dessert", "price": 18.50},
-    {"id":13, "name": "Saline Nasal Mist", "department": "personal care", "aisle": "cold flu allergy", "price": 16.00},
-    {"id":14, "name": "Fresh Scent Dishwasher Cleaner", "department": "household", "aisle": "dish detergents", "price": 4.99},
-    {"id":15, "name": "Overnight Diapers Size 6", "department": "babies", "aisle": "diapers wipes", "price": 25.50},
-    {"id":16, "name": "Mint Chocolate Flavored Syrup", "department": "snacks", "aisle": "ice cream toppings", "price": 4.50},
-    {"id":17, "name": "Rendered Duck Fat", "department": "meat seafood", "aisle": "poultry counter", "price": 9.99},
-    {"id":18, "name": "Pizza for One Suprema Frozen Pizza", "department": "frozen", "aisle": "frozen pizza", "price": 12.50},
-    {"id":19, "name": "Gluten Free Quinoa Three Cheese & Mushroom Blend", "department": "dry goods pasta", "aisle": "grains rice dried goods", "price": 3.99},
-    {"id":20, "name": "Pomegranate Cranberry & Aloe Vera Enrich Drink", "department": "beverages", "aisle": "juice nectars", "price": 4.25}
-] # based on data from Instacart: https://www.instacart.com/datasets/grocery-shopping-2017
+# Import packages
+import os
+from pandas import read_csv
+from datetime import datetime 
+from dotenv import load_dotenv
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+
+# CSV File Reading
+csv_filepath = os.path.join(os.path.dirname(__file__), "data", "products.csv")
+
+df = read_csv(csv_filepath)
+
+products = df.to_dict()
+
+print(products)
+
 
 def to_usd(my_price):
     """
@@ -36,15 +32,6 @@ def to_usd(my_price):
     Returns: $4,000.44
     """
     return f"${my_price:,.2f}" #> $12,000.71
-
-
-
-# Import packages
-import os
-from datetime import datetime 
-from dotenv import load_dotenv
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
 load_dotenv()
 
@@ -60,8 +47,9 @@ while True:
        selected_ids.append(product_id)
 
 # PRINTING RECEIPT
+MARKET_NAME = os.getenv("STORE_NAME", default = "MY MARKET")
 print('------------------------------------------')
-print("MCNAMARA & SONS MARKET")
+print(MARKET_NAME)
 print("(202)-687-0100", "|", "3700 O ST. NW WASHINGTON, DC 20057" )
 print("QUESTIONS? REACH US AT: HELP@M&SMARKET.COM")
 
@@ -90,12 +78,10 @@ print("TOTAL PRICE:", to_usd(cust_total))
 print('------------------------------------------')
 print("SUBTOTAL:", to_usd(cust_total))
 
-#The amount of tax owed (e.g. $1.70), calculated by multiplying the total cost by a New York City sales tax rate of 8.75% (for the purposes of this project, groceries are not exempt from sales tax)
 tax_rate = float(os.getenv("TAX_RATE", default = 0.0875))
 total_tax = tax_rate * cust_total
 print(f"TAX: ({to_usd(total_tax)})")
 
-#The total amount owed, formatted as US dollars and cents (e.g. $21.17), calculated by adding together the amount of tax owed plus the total cost of all shopping cart items
 print("CUSTOMER TOTAL:", to_usd(total_tax + cust_total))
 print('------------------------------------------')
 
@@ -110,10 +96,10 @@ if cust_e_choice == "Y":
     client = SendGridAPIClient(SENDGRID_API_KEY)
     print("CLIENT:", type(client))
 
-    subject = "Your receipt from McNamara & Sons Market"
+    subject = f"Your receipt from {MARKET_NAME}"
 
     html_content = f"""
-    <h1> MCNAMARA & SONS MARKET, INC. </h1>
+    <h1> {MARKET_NAME} </h1>
 
     <h3> Customer receipt: </h3> 
 
@@ -150,8 +136,3 @@ if cust_e_choice == "Y":
 else:
     print("THANK YOU FOR SHOPPING WITH US. PLEASE COME AGAIN SOON!")
 
-#A friendly message thanking the customer and/or encouraging the customer to shop again
-
-
-
-# 

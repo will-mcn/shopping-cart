@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# this is the ".gitignore" file...
+
+# ignore environment variables in the ".env" file:
+.env
+
+# ignore the products CSV file inventory (but not the default):
+data/products.csv
+!data/default_products.csv
