@@ -43,11 +43,14 @@ while True:
        selected_ids.append(product_id)
 
 # PRINTING RECEIPT
-MARKET_NAME = os.getenv("STORE_NAME", default = "MY MARKET")
-MARKET_EMAIL = os.getenv("STORE_EMAIL", default = "HELP@MYMARKET.COM" )
+MARKET_NAME = os.getenv("MARKET_NAME", default = "MY MARKET")
+MARKET_EMAIL = os.getenv("MARKET_EMAIL", default = "HELP@MYMARKET.COM")
+MARKET_LOC = os.getenv("MARKET_LOC", default = "3700 O ST. NW WASHINGTON, DC 20057")
+MARKET_PHONE = os.getenv("MARKET_PHONE", default = "(202)-687-0100")
+
 print('------------------------------------------')
 print(MARKET_NAME)
-print("(202)-687-0100", "|", "3700 O ST. NW WASHINGTON, DC 20057" )
+print(MARKET_PHONE, "|", MARKET_LOC)
 print(f"QUESTIONS? REACH US AT: {MARKET_EMAIL}")
 
 print('------------------------------------------')
