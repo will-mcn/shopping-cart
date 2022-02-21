@@ -23,7 +23,7 @@ pip install -r requirements.txt
 The inventory of products used in the program can be updated given the market's needs and changing product offerings. To update, make a copy of the "data/default_products.csv" and save as "data/products.csv" in your copied repo. This will allow for customization of product inventory whenever necessary without affecting the version control.
 
 ### Environment Variables
-Environment variables in this program include the tax rate, sender email for the receipt, the store name, as well as your sendgrid API key. In order to edit these, make and add a     .env file to your repository with the following definitions:
+Environment variables in this program include items like the tax rate, sender email for the receipt, the store name, your sendgrid API key, etc. In order to edit these, make and add a  .env file to your repository with the following definitions:
 
 Tax rate:
 ```
