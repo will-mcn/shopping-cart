@@ -1,7 +1,5 @@
 # This is the shopping_cart.py file
 
-# Setup
-
 # Import packages
 import os
 from pandas import read_csv
@@ -10,16 +8,16 @@ from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+load_dotenv()
 
-# CSV File Reading
+# CSV File Reading & Input Reading
+# If there are products you would like to add or take off from the inputs, do so in the products.csv file 
 csv_filepath = os.path.join(os.path.dirname(__file__), "data", "products.csv")
 
 df = read_csv(csv_filepath)
 
-products = df.to_dict()
-
-print(products)
-
+# convert input DataFrame to a list of dictionaries
+products = df.to_dict('records')
 
 def to_usd(my_price):
     """
@@ -32,8 +30,6 @@ def to_usd(my_price):
     Returns: $4,000.44
     """
     return f"${my_price:,.2f}" #> $12,000.71
-
-load_dotenv()
 
 #USER INFORMATION CAPTURE
 cust_total = 0
@@ -48,14 +44,14 @@ while True:
 
 # PRINTING RECEIPT
 MARKET_NAME = os.getenv("STORE_NAME", default = "MY MARKET")
+MARKET_EMAIL = os.getenv("STORE_EMAIL", default = "HELP@MYMARKET.COM" )
 print('------------------------------------------')
 print(MARKET_NAME)
 print("(202)-687-0100", "|", "3700 O ST. NW WASHINGTON, DC 20057" )
-print("QUESTIONS? REACH US AT: HELP@M&SMARKET.COM")
+print(f"QUESTIONS? REACH US AT: {MARKET_EMAIL}")
 
 print('------------------------------------------')
 
-#The date and time of the beginning of the checkout process, formatted in a human-friendly way (e.g. 2020-02-07 03:54 PM)
 now =datetime.now()
 today = now.strftime("%Y-%m-%d %H:%M %p")
 
@@ -63,18 +59,17 @@ print("CHECKOUT AT:", today)
 
 print('------------------------------------------')
 
+# Loop through products and store selected products via list comprehension, and print the result for the customer 
 html_receipt = ""
 for product_id in selected_ids:
     matching_products = [p for p in products if str(p["id"]) == str(product_id)]
     matching_product = matching_products[0]
     cust_total = cust_total + matching_product["price"]
-    print("SELECTED PRODUCT:" + matching_product['name'] + "" + to_usd(matching_product['price']))
+    print("SELECTED PRODUCT:" + matching_product['name'], to_usd(matching_product['price']))
     html_receipt += f"<li>{matching_product['name']} ({to_usd(matching_product['price'])}) </li>" 
 print("TOTAL PRICE:", to_usd(cust_total))
 
-##The name and price of each shopping cart item, price being formatted as US dollars and cents (e.g. $3.50, etc.)
-
-#The total cost of all shopping cart items (i.e. the "subtotal"), formatted as US dollars and cents (e.g. $19.47), calculated as the sum of their prices
+# Customer Total
 print('------------------------------------------')
 print("SUBTOTAL:", to_usd(cust_total))
 
@@ -86,6 +81,7 @@ print("CUSTOMER TOTAL:", to_usd(total_tax + cust_total))
 print('------------------------------------------')
 
 # Sending Receipts via Email
+# Clyde assisted with  the HTML language text setup 
 cust_e_choice = input("Would you like an email copy of your receipt? (Y/N):")
 if cust_e_choice == "Y":
     cust_email = input("Please enter a valid email address:")
@@ -101,7 +97,7 @@ if cust_e_choice == "Y":
     html_content = f"""
     <h1> {MARKET_NAME} </h1>
 
-    <h3> Customer receipt: </h3> 
+    <h3> Customer Receipt: </h3> 
 
     <p>Date: {today} </p>
 
@@ -133,6 +129,6 @@ if cust_e_choice == "Y":
 
     print("RECEIPT SENT. HAVE A NICE DAY!")
 
-else:
+else: #if the customer does not want an emailed receipt
     print("THANK YOU FOR SHOPPING WITH US. PLEASE COME AGAIN SOON!")
 
